@@ -68,12 +68,17 @@ error_angles = 0.05:0.05:3.0;
 % Do I want to use the error free chordal initialization as well? Don't
 % think so.
 
-[measurements_out, id] = add_edge_noise(measurements, 2.0);
+n_outliers = 1000;
+error_angle = 2.0;
+measurements_out = measurements;
+for idx=1:n_outliers
+    [measurements_out, id] = add_edge_noise(measurements_out, error_angle);
+end
 
-m = measurements.R(id);
-m{:}
-m_out = measurements_out.R(id);
-m_out{:}
+% m = measurements.R(id);
+% m{:}
+% m_out = measurements_out.R(id);
+% m_out{:}
 
 %% Run SE-Sync
 

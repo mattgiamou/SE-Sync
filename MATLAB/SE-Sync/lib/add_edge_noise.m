@@ -9,12 +9,14 @@ N = id_lc_max - id_lc_min;
 id = randi(N, 1) + id_lc_min;
 R = random_orientation_matrix(theta);
 r = measurements.R(id);
-r{:}
+%r{:}
 measurements.R(id) = {R*r{:}};
 r2 = measurements.R(id);
-r2{:}
+%r2{:}
+
+%t = measurements.t(id);
 
 measurements_out = measurements;
-
+%measurements_out.t(id) = {t{:} + 50};
 end
 
