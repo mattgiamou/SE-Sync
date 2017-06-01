@@ -1,17 +1,13 @@
-% This file contains a minimum working example demonstrating the use of the
-% MATLAB distribution of SE-Sync, a certifiably correct algorithm for 
-% synchronization over the special Euclidean group
-%
-% Copyright (C) 2016 by David M. Rosen
-
+% This file tests the ability of SE-Sync to find and certify globally
+% optimal 
 %% Reset environment
 clear all;
 close all;
 clc;
 
 %% Import SE-Sync
-run('../import_SE_Sync.m');  % It's that easy :-)!
-
+% Run this script in MATLAB/examples directory
+run('../import_SE_Sync.m');
 
 %% Select dataset to run
 data_dir = '../../data/';  % Relative path to directory containing example datasets
@@ -24,7 +20,6 @@ grid = 'grid3D';
 garage = 'parking-garage';
 cubicle = 'cubicle';
 rim = 'rim';
-
 % 2D datasets
 CSAIL = 'CSAIL';
 manhattan = 'manhattan';
@@ -32,10 +27,8 @@ city10000 = 'city10000';
 intel = 'intel';
 ais = 'ais2klinik';
 
-
 % Pick the dataset to run here
-% file = sphere2500;
-file = sphere2500_corrupt;
+file = sphere2500;
 
 g2o_file = strcat(data_dir, file, '.g2o');
 
@@ -70,14 +63,27 @@ SE_Sync_opts.Cholesky = false;  % Select whether to use Cholesky or QR decomposi
 
 use_chordal_initialization = true;  % Select whether to use the chordal initialization, or a random starting point
 
+%% Add Outliers and loop
+error_angles = 0.05:0.05:3.0;
+% Do I want to use the error free chordal initialization as well? Don't
+% think so.
+
+[measurements_out, id] = add_edge_noise(measurements, 2.0);
+
+m = measurements.R(id);
+m{:}
+m_out = measurements_out.R(id);
+m_out{:}
+
 %% Run SE-Sync
 
 % Pass explict settings for SE-Sync and/or Manopt, and use chordal
 % initialization
 fprintf('Computing chordal initialization...\n');
-R = chordal_initialization(measurements);
+% R = chordal_initialization(measurements);
+R = chordal_initialization(measurements_out);
 Y0 = vertcat(R, zeros(SE_Sync_opts.r0 - d, num_poses*d));
-[SDPval, Yopt, xhat, Fxhat, SE_Sync_info, problem_data] = SE_Sync(measurements, Manopt_opts, SE_Sync_opts, Y0);
+[SDPval, Yopt, xhat, Fxhat, SE_Sync_info, problem_data] = SE_Sync(measurements_out, Manopt_opts, SE_Sync_opts, Y0);
 
 % ... or ...
 
